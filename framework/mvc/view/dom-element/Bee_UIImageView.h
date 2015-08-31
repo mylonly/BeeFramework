@@ -110,6 +110,8 @@ AS_SIGNAL( LOAD_CACHE )         // 加载缓存
 
 - (void)clear;
 
+- (void)setupDefaultImage;
+
 @end
 
 #endif	// #if (TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR)

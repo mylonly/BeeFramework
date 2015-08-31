@@ -733,6 +733,11 @@ DEF_SIGNAL( LOAD_CACHE )
 	self.loading = NO;
 }
 
+- (void)setupDefaultImage
+{
+    self.image = self.defaultImage;
+}
+
 - (BeeUILabel *)altLabel
 {
 	if ( nil == _altLabel )
