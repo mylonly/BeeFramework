@@ -7,6 +7,7 @@
 //
 
 #import "FileUploadMessage.h"
+#import "UploadCache.h"
 
 @implementation ParameterOption
 
@@ -24,75 +25,64 @@
 
 @interface FileUploadMessage()
 {
-#ifdef FILE_UPLOAD_MESSAGE_MULTI_THREAD
     NSOperationQueue * m_blockQueues; // 每个文件一个线程块
-#endif
+    
+    NSUInteger m_numberOfThread; // 线程数量
+    NSCondition * m_controlThread; // 控制线程数量
 }
 @end
 
 @implementation FileUploadMessage
 
+- (void) setupParam
+{
+    if (!self.url)
+    {
+        self.url = [NSString stringWithFormat:@"%@/%@/", [UPYunUpload API_SERVER], [UPYunUpload BUCKET]];
+    }
+    
+    if (!self.formAPI)
+    {
+        self.formAPI = [UPYunUpload PASSCODE];
+    }
+}
+
 - (void) initParam
 {
     [UPYunUpload setBlockSize:202500];
-#ifdef FILE_UPLOAD_MESSAGE_MULTI_THREAD
     if (!m_blockQueues)
     {
         m_blockQueues = [[NSOperationQueue alloc] init];
         m_blockQueues.maxConcurrentOperationCount = [UPYunUpload MAX_THREAD_NUMBER];
     }
-#endif
+    
+    m_numberOfThread = 3;
+    
+    if (nil == m_controlThread)
+    {
+        m_controlThread = [[NSCondition alloc] init];
+    }
 }
 
 - (BeeQueueModel *) fillModel:(BeeQueueModel *)model
 {
-    if (0 == model.path.length)
+    if (0 == model.serverPath.length)
     {
-        model.path = [NSString stringWithFormat:@"/images/test/test_%@.txt", [[NSDate date] stringWithDateFormat:@"yyyyMMddhhmmss"]];
+        model.serverPath = [NSString stringWithFormat:@"/images/test/test_%@.txt", [[NSDate date] stringWithDateFormat:@"yyyyMMddhhmmss"]];
     }
     
-    if (model && model.data)
-    {
-        // 数据已存在，不用读文件
-    }
-    else if (model && model.local)
+    if (model && model.localPath)
     {
         NSFileManager * fileManager = [NSFileManager defaultManager];
-        if ([fileManager isReadableFileAtPath:model.local])
+        if ([fileManager isReadableFileAtPath:model.localPath])
         {
-            model.data = [NSData dataWithContentsOfFile:model.local];
+            model.data = [NSData dataWithContentsOfFile:model.localPath];
         }
         else
         {
             return nil;
         }
     }
-    if (QUEUE_MODEL_UPLOAD_ALL != model.method)
-    {
-        // 默认为 [UPYunUpload BLOCK_SIZE];
-    }
-    else
-    {
-        [UPYunUpload setBlockSize:(model.data.length + 1)];
-    }
-    
-    if (nil == model.server)
-    {
-        model.server = [UPYunUpload API_SERVER];
-    }
-    
-    if (nil == model.bucket)
-    {
-        model.bucket = [UPYunUpload BUCKET];
-    }
-    
-    if (nil == model.passcode)
-    {
-        model.passcode = [UPYunUpload PASSCODE];
-    }
-    
-    self.url = [NSString stringWithFormat:@"%@/%@", model.server, model.bucket];
-    self.formAPI = model.passcode;
     
     return model;
 }
@@ -108,21 +98,21 @@
             __weak BeeQueueModel * model = nil;
             if (nil == (model = [BeeQueue getFirstDataByQueue:[UPYunUpload UPYUN_DATA_QUEUE]]))
             {
-                sleep(1);
+                sleep(5);
                 continue;
             }
+            if (!self.url || !self.formAPI)
+            {
+                [self setupParam];
+            }
 
-#ifdef FILE_UPLOAD_MESSAGE_MULTI_THREAD
             NSBlockOperation * file = [NSBlockOperation blockOperationWithBlock:^{
-#endif
-                if ([self fillModel:model])
-                {
-                    [self demonWithModel:model];
-                }
-#ifdef FILE_UPLOAD_MESSAGE_MULTI_THREAD
+                    if ([self fillModel:model])
+                    {
+                        [self demonWithModel:model];
+                    }
             }];
             [m_blockQueues addOperation:file];
-#endif
         }
     }
     BACKGROUND_COMMIT
@@ -136,7 +126,7 @@
     file.whenSending = [^
     {
         @normalize(file);
-        NSDictionary * group = [UPYunUpload parameterGroupWithData:model.data path:model.path];
+        NSDictionary * group = [UPYunUpload parameterGroupWithData:model.data path:model.serverPath];
         NSDictionary * param = [UPYunUpload requestParameterByParameterGroup:group condition:self.formAPI];
         
         file.HTTP_POST(self.url)
@@ -149,12 +139,10 @@
         @normalize(file);
         NSDictionary * result = file.responseJSONDictionary;
         
-        NSString * server = [NSString stringWithFormat:@"%@/%@", model.visit, model.path];
-        UADHTTPCache * uploadCache = [[UADHTTPCache alloc] initWithKey:model.key
-                                                                 local:model.local
-                                                                server:server
-                                                             sizeOfAll:model.data.length
-                                                           sizeOfBlock:[UPYunUpload BLOCK_SIZE]];
+        UploadCache * uploadCache = [[UploadCache alloc] initWithLocalPath:model.localPath
+                                                            server:model.serverPath
+                                                      andBlockSize:[UPYunUpload BLOCK_SIZE]
+                                                               md5:model.key];
         
         uploadCache.LOAD(); // 加载指定文件缓存
         
@@ -166,6 +154,8 @@
             option.model = model;
             option.result = resultInfo;
             option.cache = uploadCache;
+            
+            // [NSThread detachNewThreadSelector:@selector(childBlock:) toTarget:self withObject:option];
             
             [self childBlock:option];
         }
@@ -221,20 +211,10 @@
             break ;
         }
         
-        if (1.0f == [option.cache.progress integerValue])
+        if (option.cache.finished == YES
+            || (NSOrderedSame == [option.cache.md5 compare:option.model.key]
+                && NSNotFound != [option.cache.uploaded indexOfObject:@(index)]))
         {
-            if (option.model.whenSucced)
-            {
-                NSString * server = [NSString stringWithFormat:@"%@/%@", option.model.visit, option.model.path];
-                option.model.whenSucced(server);
-            }
-            break;
-        }
-        
-        if (NSOrderedSame == [option.cache.key compare:option.model.key]
-                && YES == [option.cache existWithObject:[NSString stringWithFormat:@"%ld", (long)index]])
-        {
-            ++index;
             continue;
         }
         
@@ -252,11 +232,13 @@
                                     @"parameter":parameter,
                                     @"option":option};
         
-#ifdef FILE_UPLOAD_MESSAGE_MULTI_THREAD
+        
+        /* NSBlockOperation * block = [NSBlockOperation blockOperationWithBlock:^{
+            [self uploadBlock:userInfo count:0];
+        }];
+        [m_blockQueues addOperation:block];
+         */
         self.UPLOAD(userInfo, 0);
-#else
-        [self uploadBlock:userInfo count:0];
-#endif
         
         ++index; // 控制索引
     }
@@ -345,36 +327,30 @@
             }
             
             CGFloat progress = (CGFloat)finished / paramInfo.blockNumber;
-            INFO(@"文件 %@ 上传进度 ：%f", option.model.local, progress);
-            [option.model setProgress:progress];
+            INFO(@"文件 %@ 上传进度 ：%f", option.model.localPath, progress);
             if (1.0f == progress)
             {
                 [self fileMergeWithOption:option];
             }
             
-            if (option.model.whenUpdate)
+            option.model.progress = progress;
+            if (option.model.whenProgress)
             {
-                option.model.whenUpdate(progress);
+                option.model.whenProgress();
             }
             
-            option.cache.progress = @(progress);
-            [option.cache addObject:[group objectForKey:@"block_index"]];
+            option.cache.progress = progress;
+            [option.cache.uploaded addObject:[group objectForKey:@"block_index"]];
         }
         else
         {
             // 合并操作完成，整个文件上传完成。
             [BeeQueue successKey:option.model.key ofQueue:[UPYunUpload UPYUN_DATA_QUEUE]];
             INFO(@"SUCESS : %@", parameter);
-            option.cache.progress = @(1.0f);
-            [option.model setProgress:1];
-            if (option.model.whenSucced)
-            {
-                NSString * server = [NSString stringWithFormat:@"%@/%@", option.model.visit, option.model.path];
-                option.model.whenSucced(server);
-            }
+            option.cache.finished = YES;
         }
         
-        [option.cache saveCache];
+        option.cache.SAVE();
     };
     
     // 处理失败
@@ -392,24 +368,11 @@
             {
                 index = [NSString stringWithFormat:@"第 %@ 块", index];
             }
-            NSString * info = [NSString stringWithFormat:@"文件 %@ %@ 第 %lu 次 上传失败[块大小%li]。 \n %@", option.model.local, index, (unsigned long)count, (unsigned long)data.length, block.responseJSONDictionary];
-            INFO(@"%@", info);
+            INFO(@"文件 %@ %@ 第 %i 次 上传失败[块大小%li]。 \n %@", option.model.localPath, index, count, data.length, block.responseJSONDictionary);
             [self uploadBlock:userInfo count:count];
-            
-            if (option.model.whenFailed)
-            {
-                // option.model.whenFailed(info);
-            }
         }
-        else
-        {
-            [BeeQueue failedKey:option.model.key ofQueue:[UPYunUpload UPYUN_DATA_QUEUE]];
-            if (option.model.whenFailed)
-            {
-                NSString * info = [NSString stringWithFormat:@"[%@]上传失败", option.model.local];
-                option.model.whenFailed(info);
-            }
-        }
+        
+        [BeeQueue failedKey:option.model.key ofQueue:[UPYunUpload UPYUN_DATA_QUEUE]];
     };
     
     [block send];
