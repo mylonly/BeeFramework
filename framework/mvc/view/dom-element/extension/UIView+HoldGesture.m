@@ -50,7 +50,7 @@
 	self = [super initWithTarget:target action:action];
 	if ( self )
 	{
-		self.numberOfTapsRequired = 1;
+		self.numberOfTapsRequired = 0;
 		self.numberOfTouchesRequired = 1;
 		self.cancelsTouchesInView = YES;
 		self.delaysTouchesBegan = YES;
