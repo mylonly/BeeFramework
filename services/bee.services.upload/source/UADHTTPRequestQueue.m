@@ -7,7 +7,6 @@
 //
 
 #import "UADHTTPRequestQueue.h"
-#import "Bee_HTTPRequest.h"
 
 // ----------------------------------
 // Source code

@@ -1141,6 +1141,9 @@ DEF_SIGNAL( FOOTER_REFRESH )
 
 - (void)setFrame:(CGRect)frame
 {
+    if ( CGRectEqualToRect(self.frame, frame) )
+        return;
+    
 	_shouldNotify = NO;
 	
 	[super setFrame:frame];
