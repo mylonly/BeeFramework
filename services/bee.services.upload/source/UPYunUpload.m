@@ -6,7 +6,6 @@
 //  Copyright (c) 2015年 babyun. All rights reserved.
 //
 
-#import "Bee.h"
 #import "UPYunUpload.h"
 
 @implementation UPYunResult
@@ -46,7 +45,7 @@ static NSString * UPYUN_DATA_QUEUE = @"UPYun.Upload.Data.Queue";
 
 @interface UPYunUpload()
 {
-
+    
 }
 @end
 
