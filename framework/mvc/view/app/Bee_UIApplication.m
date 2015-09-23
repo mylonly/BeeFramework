@@ -65,6 +65,7 @@ DEF_NOTIFICATION( LOCAL_NOTIFICATION )
 DEF_NOTIFICATION( REMOTE_NOTIFICATION )
 
 DEF_NOTIFICATION( APS_REGISTERED )
+DEF_NOTIFICATION( APS_REGISTERED_WITHDATA )
 DEF_NOTIFICATION( APS_ERROR )
 
 DEF_INT( DEVICE_CURRENT,		0 )
@@ -347,6 +348,7 @@ static BeeUIApplication * __sharedApp = nil;
 	token = [token stringByReplacingOccurrencesOfString:@" " withString:@""];
 	
 	[self postNotification:BeeUIApplication.APS_REGISTERED withObject:token];
+    [self postNotification:BeeUIApplication.APS_REGISTERED_WITHDATA withObject:deviceToken];
 }
 
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error

@@ -41,17 +41,20 @@
 @property (nonatomic, assign) BOOL						registered;
 @property (nonatomic, assign) BOOL						received;
 @property (nonatomic, retain) NSString *				token;
+@property (nonatomic, retain) NSData *                  deviceToken;
 
 @property (nonatomic, retain) NSMutableArray *			notifications;
 @property (nonatomic, readonly) PushNotification *		lastNotification;
 
 @property (nonatomic, copy) BeeServiceBlock				whenRegistered;
+@property (nonatomic, copy) BeeServiceBlock             whenRegisteredWithData;
 @property (nonatomic, copy) BeeServiceBlock				whenReceived;
 
 @property (nonatomic, readonly) BeeServiceBlock			CHECK;
 @property (nonatomic, readonly) BeeServiceBlock			CLEAR;
 
 AS_NOTIFICATION( REGISTERED )
+AS_NOTIFICATION( REGISTERED_WITHDATA)
 AS_NOTIFICATION( RECEIVED )
 
 @end

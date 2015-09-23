@@ -55,7 +55,7 @@
 		self.cancelsTouchesInView = YES;
 		self.delaysTouchesBegan = YES;
 		self.delaysTouchesEnded = YES;
-		self.minimumPressDuration = 1.0f;
+		self.minimumPressDuration = 0.3f;
 		self.allowableMovement = 10;
 	}
 	return self;

@@ -262,7 +262,6 @@ ON_NOTIFICATION3( ServiceDebugger_Dock, CLOSE, notification )
 	{
 		cell = [scrollView dequeueWithContentClass:[ServiceDebugger_DashNetworkCell class]];
 	}
-	
 	if ( cell )
 	{
 		cell.data = nil;
@@ -289,7 +288,6 @@ ON_NOTIFICATION3( ServiceDebugger_Dock, CLOSE, notification )
 	{
 		return [ServiceDebugger_DashNetworkCell estimateUISizeByWidth:scrollView.width forData:nil];
 	}
-	
 	return CGSizeZero;
 }
 

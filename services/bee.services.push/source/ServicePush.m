@@ -54,12 +54,14 @@ SERVICE_AUTO_POWERON( NO )
 @dynamic lastNotification;
 
 @synthesize whenRegistered = _whenRegistered;
+@synthesize whenRegisteredWithData = _whenRegisteredWithData;
 @synthesize whenReceived = _whenReceived;
 
 @dynamic CHECK;
 @dynamic CLEAR;
 
 DEF_NOTIFICATION( REGISTERED )
+DEF_NOTIFICATION( REGISTERED_WITHDATA)
 DEF_NOTIFICATION( RECEIVED )
 
 - (void)load
@@ -70,6 +72,7 @@ DEF_NOTIFICATION( RECEIVED )
 	[self observeNotification:BeeUIApplication.LOCAL_NOTIFICATION];
 	[self observeNotification:BeeUIApplication.REMOTE_NOTIFICATION];
 	[self observeNotification:BeeUIApplication.APS_REGISTERED];
+    [self observeNotification:BeeUIApplication.APS_REGISTERED_WITHDATA];
 	[self observeNotification:BeeUIApplication.APS_ERROR];
 }
 
@@ -125,6 +128,8 @@ DEF_NOTIFICATION( RECEIVED )
         
         UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:myTypes categories:nil];
         [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
+        [[UIApplication sharedApplication] registerForRemoteNotifications];
+
     }else {
         UIRemoteNotificationType myTypes = UIRemoteNotificationTypeBadge|UIRemoteNotificationTypeAlert|UIRemoteNotificationTypeSound;
         [[UIApplication sharedApplication] registerForRemoteNotificationTypes:myTypes];
@@ -263,6 +268,19 @@ ON_NOTIFICATION3( BeeUIApplication, APS_REGISTERED, notification )
 ON_NOTIFICATION3( BeeUIApplication, APS_ERROR, notification )
 {
 	_registered = NO;
+}
+
+ON_NOTIFICATION3(BeeUIApplication, APS_REGISTERED_WITHDATA, notification)
+{
+    _registered = YES;
+    
+    self.deviceToken = notification.object;
+    [self postNotification:ServicePush.REGISTERED_WITHDATA];
+    
+    if ( self.whenRegisteredWithData )
+    {
+        self.whenRegisteredWithData();
+    }
 }
 
 @end
