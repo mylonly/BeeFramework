@@ -550,21 +550,23 @@
 
 - (UIStatusBarStyle)preferredStatusBarStyle
 {
-	if ( IOS7_OR_LATER )
-	{
-		if ( [BeeUIConfig sharedInstance].iOS6Mode )
-		{
-			return UIStatusBarStyleBlackTranslucent;
-		}
-		else
-		{
-			return UIStatusBarStyleLightContent;
-		}
-	}
-	else
-	{
-		return UIStatusBarStyleDefault;
-	}
+    return UIStatusBarStyleDefault;
+
+//	if ( IOS7_OR_LATER )
+//	{
+//		if ( [BeeUIConfig sharedInstance].iOS6Mode )
+//		{
+//			return UIStatusBarStyleBlackTranslucent;
+//		}
+//		else
+//		{
+//			return UIStatusBarStyleLightContent;
+//		}
+//	}
+//	else
+//	{
+//		return UIStatusBarStyleDefault;
+//	}
 }
 
 #endif	// #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000

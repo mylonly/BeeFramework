@@ -105,14 +105,22 @@
 		_target.text = [text substringWithRange:NSMakeRange(0, _target.maxLength)];
 		return NO;
 	}
-	
 	return YES;
 }
 
 - (void)textViewDidChange:(UITextView *)textView
 {
 	[_target updatePlaceHolder];
-	[_target sendUISignal:BeeUITextView.TEXT_CHANGED];
+    NSString * text = _target.text;
+    if ( _target.maxLength > 0 && text.length > _target.maxLength )
+    {
+        [_target sendUISignal:BeeUITextView.TEXT_OVERFLOW];
+        _target.text = [text substringWithRange:NSMakeRange(0, _target.maxLength)];
+    }
+    else
+    {
+       	[_target sendUISignal:BeeUITextView.TEXT_CHANGED];
+    }
 }
 
 - (void)textViewDidChangeSelection:(UITextView *)textView
