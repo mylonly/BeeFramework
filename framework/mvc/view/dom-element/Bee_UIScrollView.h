@@ -145,6 +145,7 @@ AS_SIGNAL( FOOTER_REFRESH )	// 上拉刷新
 @property (nonatomic, readonly) NSRange				visibleRange;
 @property (nonatomic, readonly) NSUInteger			visiblePageIndex;
 
+@property (nonatomic, assign) BOOL                  changeFrameWithReloading;
 @property (nonatomic, assign) BOOL					autoReload;
 @property (nonatomic, assign) BOOL					reloaded;
 @property (nonatomic, readonly) BOOL				reloading;
