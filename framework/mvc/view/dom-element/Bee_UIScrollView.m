@@ -438,6 +438,7 @@ DEF_SIGNAL( FOOTER_REFRESH )
 		_direction = self.DIRECTION_VERTICAL;
 		_shouldNotify = YES;
 		_reloaded = NO;
+        _changeFrameWithReloading = YES;
 		
 		_lineCount = 1;
 		
@@ -1164,6 +1165,7 @@ DEF_SIGNAL( FOOTER_REFRESH )
     //		[self syncReloadData];
     //	}
     //	else
+    if (YES == _changeFrameWithReloading)
 	{
 		[self asyncReloadData];
 	}
