@@ -393,6 +393,13 @@ DEF_SINGLETON( BeeMessageQueue );
 														selector:@selector(runloop)
 														userInfo:nil
 														 repeats:YES];
+            
+//            //判断如果当前线程不是主线程，手动启动runloop
+//            if (![NSThread isMainThread])
+//            {
+//                [[NSRunLoop currentRunLoop] addTimer:self.timer forMode:NSDefaultRunLoopMode];
+//                [[NSRunLoop currentRunLoop] run];
+//            }
 		}
 	}
 	

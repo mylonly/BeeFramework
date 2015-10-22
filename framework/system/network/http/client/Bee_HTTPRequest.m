@@ -404,6 +404,12 @@ DEF_INT( STATE_REDIRECTED,	6 );
 		{
 			ERROR( @"\t\tHTTP %@ '%@', failed", self.requestMethod, self.url.absoluteString );
 			
+            if ([self.requestMethod isEqualToString:@"POST"])
+            {
+                NSString* postBodyStr = [[NSString alloc] initWithData:self.postBody encoding:NSUTF8StringEncoding];
+                ERROR(@"PostBody:\r\n%@",postBodyStr);
+            }
+
 			if ( self.whenFailed )
 			{
 				self.whenFailed();
@@ -413,6 +419,11 @@ DEF_INT( STATE_REDIRECTED,	6 );
 		{
 			INFO( @"\t\tHTTP %@ '%@', succeed", self.requestMethod, self.url.absoluteString );
 			
+            if ([self.requestMethod isEqualToString:@"POST"])
+            {
+                NSString* postBodyStr = [[NSString alloc] initWithData:self.postBody encoding:NSUTF8StringEncoding];
+                INFO(@"PostBody:\r\n%@",postBodyStr);
+            }
 			if ( self.whenSucceed )
 			{
 				self.whenSucceed();
@@ -421,6 +432,12 @@ DEF_INT( STATE_REDIRECTED,	6 );
 		else if ( BeeHTTPRequest.STATE_CANCELLED == _state )
 		{
 			INFO( @"\t\tHTTP %@ '%@', cancelled", self.requestMethod, self.url.absoluteString );
+
+            if ([self.requestMethod isEqualToString:@"POST"])
+            {
+                NSString* postBodyStr = [[NSString alloc] initWithData:self.postBody encoding:NSUTF8StringEncoding];
+                INFO(@"PostBody:\r\n%@",postBodyStr);
+            }
 
 			if ( self.whenCancelled )
 			{

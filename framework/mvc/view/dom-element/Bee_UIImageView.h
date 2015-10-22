@@ -50,6 +50,9 @@ AS_PACKAGE( BeePackage_UI, BeeImageCache, imageCache );
 
 #pragma mark -
 
+typedef void (^BeeUIImageViewChangedBlock)(UIImage* img);
+
+
 @interface BeeImageCache : NSObject
 
 AS_SINGLETON( BeeImageCache )
@@ -80,8 +83,8 @@ AS_SIGNAL( LOAD_FAILED )		// 加载失败
 AS_SIGNAL( LOAD_CANCELLED )		// 加载取消
 AS_SIGNAL( LOAD_CACHE )         // 加载缓存
 
-//AS_SIGNAL( WILL_CHANGE )		// 图将要变了
-//AS_SIGNAL( DID_CHANGED )		// 图已经变了
+AS_SIGNAL( WILL_CHANGE )		// 图将要变了
+AS_SIGNAL( DID_CHANGED )		// 图已经变了
 
 @property (nonatomic, assign) BOOL							gray;			// 是否变为灰色
 @property (nonatomic, assign) BOOL							round;			// 是否裁剪为圆型
@@ -100,6 +103,7 @@ AS_SIGNAL( LOAD_CACHE )         // 加载缓存
 @property (nonatomic, retain) NSString *					loadedCroppedURL;
 @property (nonatomic, retain) UIImage *						defaultImage;
 @property (nonatomic, assign) BOOL							enableAllEvents;
+
 
 @property (nonatomic, assign) NSString *					url;
 @property (nonatomic, assign) NSString *					file;

@@ -270,8 +270,8 @@ DEF_SIGNAL( LOAD_FAILED )
 DEF_SIGNAL( LOAD_CANCELLED )
 DEF_SIGNAL( LOAD_CACHE )
 
-//DEF_SIGNAL( WILL_CHANGE )
-//DEF_SIGNAL( DID_CHANGED )
+DEF_SIGNAL( WILL_CHANGE )
+DEF_SIGNAL( DID_CHANGED )
 
 @synthesize gray = _gray;
 @synthesize round = _round;
@@ -679,7 +679,8 @@ DEF_SIGNAL( LOAD_CACHE )
 			{
 				[self transitionFade];
 			}
-
+            
+//            image = image;
 			[super setImage:image];
 
 //			[self sendUISignal:BeeUIImageView.DID_CHANGED];
