@@ -57,6 +57,7 @@ AS_SIGNAL( RETURN )				// 换行
 @property (nonatomic, assign) NSObject *	nextChain;
 
 - (void)updatePlaceHolder;
+- (BOOL) textOverFlow;
 
 @end
 
