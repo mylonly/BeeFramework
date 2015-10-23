@@ -101,7 +101,7 @@
     else
     {
         NSString * text = [_target.text stringByReplacingCharactersInRange:range withString:string];
-        if ( _target.maxLength > 0 && text.length > _target.maxLength )
+        if ( _target.maxLength > 0 && [_target textOverFlow] )
         {
             [_target sendUISignal:BeeUITextField.TEXT_OVERFLOW];
             return NO;
@@ -222,6 +222,8 @@ DEF_SIGNAL( RETURN )
 		
 		_maxLength = 0;
 		_inited = YES;
+        
+        [self addTarget:self action:@selector(textFiledEditChanged:) forControlEvents:UIControlEventEditingChanged];
 
 //		[self load];
 		[self performLoad];
@@ -275,6 +277,41 @@ DEF_SIGNAL( RETURN )
 	}
 
 	SIGNAL_FORWARD( signal );
+}
+
+-(void)textFiledEditChanged:(UITextField *)obj
+{
+    [self textOverFlow];
+}
+
+- (BOOL) textOverFlow
+{
+    NSString *toBeString = self.text;
+    NSString *lang = [[UITextInputMode currentInputMode] primaryLanguage]; // 键盘输入模式
+    if ([lang isEqualToString:@"zh-Hans"]) { // 简体中文输入，包括简体拼音，健体五笔，简体手写
+        UITextRange *selectedRange = [self markedTextRange];
+        //获取高亮部分
+        UITextPosition *position = [self positionFromPosition:selectedRange.start offset:0];
+        // 没有高亮选择的字，则对已输入的文字进行字数统计和限制
+        if (!position) {
+            if (_maxLength > 0 && toBeString.length > _maxLength) {
+                self.text = [toBeString substringToIndex:_maxLength];
+                return YES;
+            }
+        }
+        // 有高亮选择的字符串，则暂不对文字进行统计和限制
+        else{
+            
+        }
+    }
+    // 中文输入法以外的直接对其统计限制即可，不考虑其他语种情况
+    else{
+        if (_maxLength > 0 && toBeString.length > _maxLength) {
+            self.text = [toBeString substringToIndex:_maxLength];
+            return YES;
+        }
+    }
+    return NO;
 }
 
 #pragma mark -

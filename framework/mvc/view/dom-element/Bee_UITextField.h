@@ -54,6 +54,7 @@ AS_SIGNAL( TEXT_OVERFLOW )		// 文字超长
 AS_SIGNAL( CLEAR )				// 清空
 AS_SIGNAL( RETURN )				// 换行
 
+- (BOOL)textOverFlow; // 解决输入汉字导致的长度计算不准问题
 - (BOOL)validateNumber:(NSString*)number;
 
 @end
