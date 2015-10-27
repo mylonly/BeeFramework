@@ -336,12 +336,14 @@
 
 - (BOOL)empty
 {
-	return [self length] > 0 ? NO : YES;
+    return [self stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]].length > 0 ? NO:YES;
+    //return [self length] > 0 ? NO : YES;
 }
 
 - (BOOL)notEmpty
 {
-	return [self length] > 0 ? YES : NO;
+    return [self stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]].length > 0 ? YES:NO;
+    //return [self length] > 0 ? YES : NO;
 }
 
 - (BOOL)eq:(NSString *)other
