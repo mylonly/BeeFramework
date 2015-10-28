@@ -44,6 +44,7 @@
 @property (nonatomic, assign) NSUInteger	maxLength;
 @property (nonatomic, assign) NSObject *	nextChain;
 @property (nonatomic, assign) BOOL	isNumber;
+@property (nonatomic, assign) BOOL			noNewLine;
 
 AS_SIGNAL( WILL_ACTIVE )		// 将要获取焦点
 AS_SIGNAL( DID_ACTIVED )		// 已经获取焦点
