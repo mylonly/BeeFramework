@@ -55,6 +55,7 @@ AS_SIGNAL( RETURN )				// 换行
 @property (nonatomic, retain) UIColor *		placeHolderColor;
 @property (nonatomic, assign) NSUInteger	maxLength;
 @property (nonatomic, assign) NSObject *	nextChain;
+@property (nonatomic, assign) BOOL			noNewLine;
 
 - (void)updatePlaceHolder;
 - (BOOL) textOverFlow;

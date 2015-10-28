@@ -91,7 +91,7 @@
 	if ( [string isEqualToString:@"\n"] || [string isEqualToString:@"\r"] )
 	{
 		BeeUISignal * signal = [_target sendUISignal:BeeUITextView.RETURN];
-		if ( signal )
+		if ( signal && _target.noNewLine)
 		{
 			return signal.boolValue;
 		}
@@ -216,6 +216,7 @@ DEF_SIGNAL( RETURN )
 		
 		_maxLength = 0;
 		_inited = YES;
+        _noNewLine = YES;
 		
 //		[self load];
 		[self performLoad];
@@ -340,7 +341,7 @@ DEF_SIGNAL( RETURN )
 
 - (void)handleUISignal:(BeeUISignal *)signal
 {
-	if ( [signal is:self.RETURN] )
+	if ( [signal is:self.RETURN] && _noNewLine ) // 按回车时，是否新起一行
 	{
 		if ( _nextChain && _nextChain != self )
 		{
