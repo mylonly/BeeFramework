@@ -133,12 +133,28 @@
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
 {
-	BeeUISignal * signal = [_target sendUISignal:BeeUITextField.RETURN];
-	if ( signal && signal.returnValue && _target.noNewLine)
+    BeeUISignal * signal;
+    if (textField.returnKeyType == UIReturnKeyNext)
+    {
+        signal = [_target sendUISignal:BeeUITextField.NEXT];
+    }
+    else if (textField.returnKeyType == UIReturnKeySend)
+    {
+        signal = [_target sendUISignal:BeeUITextField.SEND];
+    }
+    else if (textField.returnKeyType == UIReturnKeySearch)
+    {
+        signal = [_target sendUISignal:BeeUITextField.SEARCH];
+    }
+    else
+    {
+        signal = [_target sendUISignal:BeeUITextField.DONE];
+    }
+    
+    if ( signal && signal.returnValue)
 	{
 		return signal.boolValue;
 	}
-	
 	return YES;
 }
 
@@ -172,7 +188,10 @@ DEF_SIGNAL( DID_DEACTIVED )
 DEF_SIGNAL( TEXT_CHANGED )
 DEF_SIGNAL( TEXT_OVERFLOW )
 DEF_SIGNAL( CLEAR )
-DEF_SIGNAL( RETURN )
+DEF_SIGNAL( NEXT )
+DEF_SIGNAL( DONE )
+DEF_SIGNAL( SEARCH )
+DEF_SIGNAL( SEND )
 
 @dynamic active;
 @synthesize nextChain = _nextChain;
@@ -263,20 +282,19 @@ DEF_SIGNAL( RETURN )
 
 - (void)handleUISignal:(BeeUISignal *)signal
 {
-	if ( [signal is:self.RETURN] && _noNewLine ) // 按回车时，是否新起一行
-	{
-		if ( _nextChain && _nextChain != self )
-		{
-			[_nextChain becomeFirstResponder];
-			return;
-		}
-		else if ( nil == _nextChain )
-		{
-			[self resignFirstResponder];
-			return;
-		}
-	}
-
+    if( [signal is:self.DONE] )
+    {
+        [self resignFirstResponder];
+        return;
+    }
+    else if ([signal is:self.NEXT])
+    {
+        if ( _nextChain && _nextChain != self )
+        {
+            [_nextChain becomeFirstResponder];
+            return;
+        }
+    }
 	SIGNAL_FORWARD( signal );
 }
 

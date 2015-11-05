@@ -526,11 +526,11 @@ static NSMutableArray *		__allBoards = nil;
 - (void)viewDidLoad
 {
 //	INFO( @"'%@' viewDidLoad", [[self class] description] );
-	
+    [super viewDidLoad];
+
 	[self createViews];
 	[self loadDatas];
 
-    [super viewDidLoad];
 }
 
 - (void)viewDidUnload

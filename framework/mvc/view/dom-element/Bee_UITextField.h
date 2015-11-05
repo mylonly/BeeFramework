@@ -53,7 +53,11 @@ AS_SIGNAL( DID_DEACTIVED )		// 已经丢失焦点
 AS_SIGNAL( TEXT_CHANGED )		// 文字变了
 AS_SIGNAL( TEXT_OVERFLOW )		// 文字超长
 AS_SIGNAL( CLEAR )				// 清空
-AS_SIGNAL( RETURN )				// 换行
+
+AS_SIGNAL( NEXT )               // 下一项
+AS_SIGNAL( DONE )               // 完成
+AS_SIGNAL( SEARCH )             // 搜索
+AS_SIGNAL( SEND )               // 发送
 
 - (BOOL)textOverFlow; // 解决输入汉字导致的长度计算不准问题
 - (BOOL)validateNumber:(NSString*)number;
