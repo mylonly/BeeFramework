@@ -173,10 +173,12 @@ DEF_SIGNAL( DID_LOAD_CANCELLED )	// 加载取消
 	
 	NSArray * cookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookies];
 
-	for ( NSHTTPCookie * cookie in cookies )
-	{
-		[[NSHTTPCookieStorage sharedHTTPCookieStorage] deleteCookie:cookie];
-	}
+    //不清除cookie
+    
+//	for ( NSHTTPCookie * cookie in cookies )
+//	{
+//		[[NSHTTPCookieStorage sharedHTTPCookieStorage] deleteCookie:cookie];
+//	}
 	
 	[self loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:path]]];
 }
