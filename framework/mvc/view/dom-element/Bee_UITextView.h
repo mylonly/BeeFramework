@@ -58,7 +58,7 @@ AS_SIGNAL( RETURN )				// 换行
 @property (nonatomic, assign) BOOL			noNewLine;
 
 - (void)updatePlaceHolder;
-- (BOOL) textOverFlow;
+- (BOOL) textOverFlow:(NSString *)text;
 
 @end
 
