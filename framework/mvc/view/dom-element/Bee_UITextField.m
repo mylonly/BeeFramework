@@ -288,7 +288,7 @@ DEF_SIGNAL( RETURN )
 - (BOOL) textOverFlow
 {
     NSString *toBeString = self.text;
-    NSString *lang = [[UITextInputMode currentInputMode] primaryLanguage]; // 键盘输入模式
+    NSString *lang = [[[UIApplication sharedApplication] textInputMode]primaryLanguage]; // 键盘输入模式
     if ([lang isEqualToString:@"zh-Hans"]) { // 简体中文输入，包括简体拼音，健体五笔，简体手写
         UITextRange *selectedRange = [self markedTextRange];
         //获取高亮部分
