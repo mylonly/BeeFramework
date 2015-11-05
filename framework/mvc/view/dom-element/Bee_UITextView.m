@@ -96,12 +96,10 @@
 			return signal.boolValue;
 		}
 	}
-
-    _target.text = [NSString stringWithFormat:@"%@%@", _target.text, string];
-    
+    NSString * text = [_target.text empty] ? string : _target.text;
     // if ( _target.maxLength > 0 && text.length > _target.maxLength )
     // 计算汉字和联想输入导致的字符变化
-    if ( _target.maxLength > 0 && [_target textOverFlow] )
+    if ( _target.maxLength > 0 && [_target textOverFlow:text] )
 	{
 		[_target sendUISignal:BeeUITextView.TEXT_OVERFLOW];
         [_target sendUISignal:BeeUITextView.TEXT_CHANGED];
@@ -113,9 +111,10 @@
 - (void)textViewDidChange:(UITextView *)textView
 {
 	[_target updatePlaceHolder];
+    NSString * string  = [_target.text empty] ? textView.text : _target.text;
     // if ( _target.maxLength > 0 && text.length > _target.maxLength )
     // 计算汉字和联想输入导致的字符变化
-    if ( _target.maxLength > 0 && [_target textOverFlow] )
+    if ( _target.maxLength > 0 && [_target textOverFlow:string] )
     {
         [_target sendUISignal:BeeUITextView.TEXT_OVERFLOW];
     }
@@ -311,9 +310,9 @@ DEF_SIGNAL( RETURN )
 	}
 }
 
-- (BOOL) textOverFlow
+- (BOOL) textOverFlow:(NSString *)text
 {
-    NSString *toBeString = self.text;
+    NSString *toBeString = text;
     NSString *lang = [[UIApplication sharedApplication]textInputMode].primaryLanguage;
     // NSString *lang = [[UITextInputMode currentInputMode] primaryLanguage]; // 键盘输入模式
     if ([lang isEqualToString:@"zh-Hans"]) { // 简体中文输入，包括简体拼音，健体五笔，简体手写
